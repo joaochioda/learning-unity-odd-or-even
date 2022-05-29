@@ -8,41 +8,46 @@ const roomWaitingPlayers = [];
 const rooms = [];
 
 const stateMachine = {
-  "waiting_for_player": 1,
-  "waiting_for_player_pick": 2,
-  "waiting_for_players_number": 3,
-}
+  waiting_for_player: 1,
+  pick_odd_or_even: 2,
+  waiting_for_players_number: 3,
+};
 
-function roomLogic(ws) {
+function roomLogic(ws, idPlayer) {
   const idRoom = Math.random() * 10 ** 16;
+  const player = {
+    id: idPlayer,
+    ws: ws,
+    action: "",
+    choice: "",
+    number: 0,
+  };
   if (roomWaitingPlayers.length === 0) {
     roomWaitingPlayers.push({
       id: idRoom,
-      players: [ws],
+      players: [player],
       state: stateMachine["waiting_for_player"],
     });
     return idRoom;
   } else {
-    roomWaitingPlayers[0].players.push(ws);
+    roomWaitingPlayers[0].players.push(player);
     rooms.push(roomWaitingPlayers[0]);
     roomWaitingPlayers.shift();
 
+    const choosePlayerToStart = Math.floor(Math.random() * 2);
+
+    if (choosePlayerToStart === 0) {
+      rooms[rooms.length - 1].players[0].action = "pick_odd_or_even";
+      rooms[rooms.length - 1].players[1].action = "waiting_opponent";
+    } else {
+      rooms[rooms.length - 1].players[0].action = "waiting_opponent";
+      rooms[rooms.length - 1].players[1].action = "pick_odd_or_even";
+    }
     rooms[rooms.length - 1].players.forEach((player) => {
-      player.send(JSON.stringify({ type: "room is ready to" }));
+      player.ws.send(JSON.stringify({ type: player.action }));
     });
 
-    const choosePlayerToStart = Math.floor(Math.random() * 2);
-    rooms[rooms.length - 1].players[choosePlayerToStart].send(
-      JSON.stringify({ type: "Pick", message: "Choose odd or even" })
-    );
-    choosePlayerToStart === 0
-      ? rooms[rooms.length - 1].players[1].send(
-          JSON.stringify({ type: "Pick", message: "Waiting player pick" })
-        )
-      : rooms[rooms.length - 1].players[0].send(
-          JSON.stringify({ type: "Pick", message: "Waiting player pick" })
-        );
-    rooms[rooms.length - 1].state = stateMachine["waiting_for_player_pick"];
+    rooms[rooms.length - 1].state = stateMachine["pick_odd_or_even"];
     return rooms[rooms.length - 1].id;
   }
 }
@@ -51,17 +56,57 @@ function findRoomById(id) {
   return rooms.find((room) => room.id === id);
 }
 
-wss.on("connection", (ws) => {
-  const idRoom = roomLogic(ws);
+function handlePlayerPick(room, player, choise) {
+  if (
+    room.state === stateMachine["pick_odd_or_even"] &&
+    player.action === "pick_odd_or_even" &&
+    (choise === "odd" || choise === "even")
+  ) {
+    if (choise === "odd") {
+      room.players.forEach((p) => {
+        p.id === player.id ? (p.choice = "odd") : (p.choice = "even");
+      });
+    } else {
+      room.players.forEach((p) => {
+        p.id === player.id ? (p.choice = "even") : (p.choice = "odd");
+      });
+    }
+    room.state = stateMachine["waiting_for_players_number"];
+    room.players.forEach((player) => {
+      player.ws.send(
+        JSON.stringify({ type: "waiting_for_number", choice: player.choice })
+      );
+    });
+  }
+}
 
+wss.on("connection", (ws) => {
+  const idPlayer = Math.random() * 10 ** 16;
+  const idRoom = roomLogic(ws, idPlayer);
   ws.on("message", (data) => {
+    try {
       const string = Buffer.from(data).toString();
       const stringToJson = JSON.parse(string);
-      console.log(stringToJson);
+
+      const room = findRoomById(idRoom);
+      const player = room.players.find((player) => player.id === idPlayer);
+
+      switch (Object.keys(stringToJson)[0]) {
+        case "pick_odd_or_even":
+          handlePlayerPick(
+            room,
+            player,
+            (choise = stringToJson.pick_odd_or_even)
+          );
+          break;
+      }
+    } catch (ex) {
+      return;
+    }
   });
 
-  ws.on('picked', (data) => {
-    console.log(data)
+  ws.on("picked", (data) => {
+    console.log(data);
   });
 });
 wss.on("listening", () => {
