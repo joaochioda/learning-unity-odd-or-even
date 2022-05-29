@@ -1,3 +1,10 @@
+/*
+---------TODO---------
+Extra
+timer for actions
+handle lost connection
+*/
+
 const WebSocket = require("ws");
 
 const wss = new WebSocket.Server({ port: 8080 }, () => {
@@ -80,6 +87,65 @@ function handlePlayerPick(room, player, choise) {
   }
 }
 
+function handlePickNumber(room, player, choise) {
+  if (
+    room.state === stateMachine["waiting_for_players_number"] &&
+    (choise === 1 || choise === 2)
+  ) {
+    room.players.forEach((p) => {
+      p.id === player.id ? (p.number = choise) : null;
+    });
+    if (room.players[0].number !== 0 && room.players[1].number !== 0) {
+      decideWinner(room);
+    } else {
+      player.ws.send(JSON.stringify({ type: "waiting_for_player_number" }));
+    }
+  }
+}
+
+function decideWinner(room) {
+  const sumNumber = room.players[0].number + room.players[1].number;
+  if (sumNumber % 2 === 0) {
+    if (room.players[0].choice === "even") {
+      room.players[0].ws.send(
+        JSON.stringify({ type: "win", number: sumNumber })
+      );
+      room.players[1].ws.send(
+        JSON.stringify({ type: "lose", number: sumNumber })
+      );
+    } else {
+      room.players[0].ws.send(
+        JSON.stringify({ type: "lose", number: sumNumber })
+      );
+      room.players[1].ws.send(
+        JSON.stringify({ type: "win", number: sumNumber })
+      );
+    }
+  } else {
+    if (room.players[0].choice === "odd") {
+      room.players[0].ws.send(
+        JSON.stringify({ type: "win", number: sumNumber })
+      );
+      room.players[1].ws.send(
+        JSON.stringify({ type: "lose", number: sumNumber })
+      );
+    } else {
+      room.players[0].ws.send(
+        JSON.stringify({ type: "lose", number: sumNumber })
+      );
+      room.players[1].ws.send(
+        JSON.stringify({ type: "win", number: sumNumber })
+      );
+    }
+    room.players[0].ws.close();
+    room.players[1].ws.close();
+    rooms.splice(rooms.indexOf(room), 1);
+  }
+  room.players[0].ws.close();
+  room.players[1].ws.close();
+  rooms.splice(rooms.indexOf(room), 1);
+}
+
 wss.on("connection", (ws) => {
   const idPlayer = Math.random() * 10 ** 16;
   const idRoom = roomLogic(ws, idPlayer);
@@ -99,6 +165,12 @@ wss.on("connection", (ws) => {
             (choise = stringToJson.pick_odd_or_even)
           );
           break;
+        case "waiting_for_players_number":
+          handlePickNumber(
+            room,
+            player,
+            stringToJson.waiting_for_players_number
+          );
       }
     } catch (ex) {
       return;
