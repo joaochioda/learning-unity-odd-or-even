@@ -149,30 +149,22 @@ function decideWinner(room) {
 wss.on("connection", (ws) => {
   const idPlayer = Math.random() * 10 ** 16;
   const idRoom = roomLogic(ws, idPlayer);
+
   ws.on("message", (data) => {
     try {
       const string = Buffer.from(data).toString();
       const stringToJson = JSON.parse(string);
-
       const room = findRoomById(idRoom);
       const player = room.players.find((player) => player.id === idPlayer);
-
-      switch (Object.keys(stringToJson)[0]) {
+      switch (stringToJson.type) {
         case "pick_odd_or_even":
-          handlePlayerPick(
-            room,
-            player,
-            (choise = stringToJson.pick_odd_or_even)
-          );
+          handlePlayerPick(room, player, (choise = stringToJson.message));
           break;
         case "waiting_for_players_number":
-          handlePickNumber(
-            room,
-            player,
-            stringToJson.waiting_for_players_number
-          );
+          handlePickNumber(room, player, stringToJson.message);
       }
     } catch (ex) {
+      console.log(ex);
       return;
     }
   });
@@ -181,6 +173,7 @@ wss.on("connection", (ws) => {
     console.log(data);
   });
 });
+
 wss.on("listening", () => {
   console.log("listening on 8080");
 });
