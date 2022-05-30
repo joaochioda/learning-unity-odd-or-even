@@ -67,6 +67,7 @@
     <Compile Include="Assets\GameManager.cs" />
     <Compile Include="Assets\Scripts\ChooseOption.cs" />
     <Compile Include="Assets\Scripts\boxClick.cs" />
+    <Compile Include="Assets\Scripts\connectionServer.cs" />
     <Compile Include="Assets\Scripts\sceneLogic.cs" />
     <Compile Include="Assets\Scripts\script.cs" />
     <None Include="Assets\Packages\Newtonsoft.Json.13.0.1\lib\netstandard2.0\Newtonsoft.Json.xml" />
@@ -254,17 +255,17 @@
     <Reference Include="UnityEditor">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2019.4.16f1/Editor/Data/Managed/UnityEditor.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>C:/Users/joaob/Documents/projetos/unity/odd or even/Library/PackageCache/com.unity.ext.nunit@1.0.5/net35/unity-custom/nunit.framework.dll</HintPath>
+    <Reference Include="Json.Net">
+      <HintPath>C:/Users/joaob/Documents/projetos/unity/odd or even/Assets/Packages/Json.Net.1.0.33/lib/netstandard2.0/Json.Net.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>C:/Users/joaob/Documents/projetos/unity/odd or even/Assets/Packages/Newtonsoft.Json.13.0.1/lib/netstandard2.0/Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Json.Net">
-      <HintPath>C:/Users/joaob/Documents/projetos/unity/odd or even/Assets/Packages/Json.Net.1.0.33/lib/netstandard2.0/Json.Net.dll</HintPath>
-    </Reference>
     <Reference Include="websocket-sharp">
       <HintPath>C:/Users/joaob/Documents/projetos/unity/odd or even/Assets/Packages/WebSocketSharp-netstandard.1.0.1/lib/netstandard2.0/websocket-sharp.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>C:/Users/joaob/Documents/projetos/unity/odd or even/Library/PackageCache/com.unity.ext.nunit@1.0.5/net35/unity-custom/nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2019.4.16f1/Editor/Data/NetStandard/ref/2.0.0/netstandard.dll</HintPath>
