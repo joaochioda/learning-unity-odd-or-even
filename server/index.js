@@ -169,11 +169,18 @@ wss.on("connection", (ws) => {
     }
   });
 
-  ws.on("picked", (data) => {
-    console.log(data);
-  });
-});
+  ws.on("close", () => {
+    const room = findRoomById(idRoom);
+    if (!room) {
+      const roomWaitingPlayer = roomWaitingPlayers.find(
+        (room) => room.id === idRoom
+      );
 
-wss.on("listening", () => {
-  console.log("listening on 8080");
+      if (roomWaitingPlayer) {
+        roomWaitingPlayer.players[0].id === idPlayer
+          ? roomWaitingPlayers.shift()
+          : null;
+      }
+    }
+  });
 });
