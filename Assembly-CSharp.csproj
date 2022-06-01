@@ -64,12 +64,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\GameManager.cs" />
     <Compile Include="Assets\Scripts\ChooseOption.cs" />
-    <Compile Include="Assets\Scripts\boxClick.cs" />
+    <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Scripts\connectionServer.cs" />
-    <Compile Include="Assets\Scripts\sceneLogic.cs" />
-    <Compile Include="Assets\Scripts\script.cs" />
     <None Include="Assets\Packages\Newtonsoft.Json.13.0.1\lib\netstandard2.0\Newtonsoft.Json.xml" />
     <None Include="Assets\Packages\WebSocketSharp-netstandard.1.0.1\lib\netstandard2.0\websocket-sharp.xml" />
     <Reference Include="UnityEngine">

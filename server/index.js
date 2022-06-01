@@ -88,12 +88,13 @@ function handlePlayerPick(room, player, choise) {
 }
 
 function handlePickNumber(room, player, choise) {
+  const intChoise = parseInt(choise);
   if (
     room.state === stateMachine["waiting_for_players_number"] &&
-    (choise === 1 || choise === 2)
+    (intChoise === 1 || intChoise === 2)
   ) {
     room.players.forEach((p) => {
-      p.id === player.id ? (p.number = choise) : null;
+      p.id === player.id ? (p.number = intChoise) : null;
     });
     if (room.players[0].number !== 0 && room.players[1].number !== 0) {
       decideWinner(room);
@@ -149,7 +150,6 @@ function decideWinner(room) {
 wss.on("connection", (ws) => {
   const idPlayer = Math.random() * 10 ** 16;
   const idRoom = roomLogic(ws, idPlayer);
-
   ws.on("message", (data) => {
     try {
       const string = Buffer.from(data).toString();
